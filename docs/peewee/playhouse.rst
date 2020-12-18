@@ -2576,13 +2576,30 @@ necessary methods to provide support for the various signals.
 
     from playhouse.signals import Model, post_save
 
-
     class MyModel(Model):
         data = IntegerField()
 
     @post_save(sender=MyModel)
     def on_save_handler(model_class, instance, created):
         put_data_in_cache(instance.data)
+
+.. code-block:: python
+
+    from peewee import *
+    from playhouse.signals import Model as Model_signal
+    
+    db = SqliteDatabase(...) # database object
+    
+    class BaseModel(Model):
+        class Meta:
+            database = db
+
+    class Person1(Model_signal, BaseModel):  # <- right way, because of proper inheritance order.
+        name = CharField()
+        
+    class Person2(BaseModel, Model_signal):  # <- wrong way
+        name = CharField()
+
 
 .. warning::
     For what I hope are obvious reasons, Peewee signals do not work when you
